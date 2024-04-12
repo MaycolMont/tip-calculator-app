@@ -2,23 +2,24 @@ import { useState } from 'react';
 import { PropTypes } from 'prop-types'
 import './App.css'
 
-function NumberInput({title, initValue, setValue}) {
+function NumberInput({title, emptyValue, value, setValue}) {
+  
   function handleInput(value) {
     value = parseFloat(value);
     if (!value) {
-      setValue(initValue);
+      setValue(emptyValue);
     } else if (value >= 0) {
       setValue(value)
     }
   }
 
   return (
-    <div className="number-input-container">
-      <h2 className='section-title'>{title}</h2>
+    <div className="input-container">
+      <h2 className='input-label'>{title}</h2>
       <div className="number-input">
-        <input type="number" 
-        // value={value === emptyValue ? '' : value}
-        placeholder={initValue}
+        <input type="number"
+        value={value === emptyValue ? '' : value}
+        placeholder={emptyValue}
         onChange={(e) => handleInput(e.target.value)} />
       </div>
     </div>
@@ -26,11 +27,21 @@ function NumberInput({title, initValue, setValue}) {
 }
 NumberInput.propTypes = {
   title: PropTypes.string.isRequired,
-  initValue: PropTypes.number.isRequired,
+  emptyValue: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
   setValue: PropTypes.func.isRequired
 }
 
 function SelectTip(props) {
+
+  function CustomTip() {
+    return (
+      <div className="tip-option custom-tip">
+        <input type="number" placeholder="Custom" />
+      </div>
+    )
+  }
+
   return (
     <div className='select-tip'>
       {props.values.map(value => (
@@ -46,6 +57,7 @@ function SelectTip(props) {
         </div>
         )
       )}
+      <CustomTip />
     </div>
 )}
 
@@ -57,15 +69,17 @@ function Results(props) {
           <h4>{props.title}</h4>
           <p>/ person</p>
         </div>
-        <div className="tip-amount">${props.value}</div>
+        <div className="result-value">${props.value == 0 ? '0.00' : props.value}</div>
       </div>
     );
   }
  
   return (
     <div className="results-container">
-      <Result title='Tip Amount' value={props.tipAmount} />
-      <Result title='total' value={props.total} />
+      <div className="result-start">
+        <Result title='Tip Amount' value={props.tipAmount} />
+        <Result title='total' value={props.total} />
+      </div>
       <button className='reset-btn' onClick={props.reset}>Reset</button>
     </div>
   )
@@ -92,9 +106,14 @@ function App() {
 
   return (
     <div className='card-container'>
-      <NumberInput title='Bill' initValue={0} setValue={setBill} />
-      <SelectTip values={[5, 10, 15, 25, 50]} selected={parseInt(tip)} setValue={setTip} />
-      <NumberInput title='Number of People' initValue={1} setValue={setNPeople} />
+      <div className="inputs-container">
+        <NumberInput title='Bill' emptyValue={0} value={bill} setValue={setBill} />
+        <div className="input-container">
+          <h2 className="input-label">Select Tip%</h2>
+          <SelectTip values={[5, 10, 15, 25, 50]} selected={parseInt(tip)} setValue={setTip} />
+        </div>
+        <NumberInput title='Number of People' emptyValue={1} value={nPeople} setValue={setNPeople} />
+      </div>
       <Results tipAmount={parseFloat(tipAmount.toFixed(2))} total={parseFloat(total.toFixed(2))} reset={reset} />
     </div>
   )
